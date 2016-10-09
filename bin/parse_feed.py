@@ -92,7 +92,7 @@ def main(url, episodes_folder, baseurl):
             thumbnail = ""
 
         if not os.path.isdir("site/content/episode"):
-            os.mkdir("site/content/episode")
+            os.makedirs("site/content/episode")
 
         with open(postfile, "w") as EPISODE:
             print(ENTRY.format(thumbnail=thumbnail,
