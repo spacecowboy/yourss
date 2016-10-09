@@ -1,0 +1,3 @@
+[submodule "site/themes/hemingway"]
+	path = site/themes/hemingway
+	url = https://github.com/spacecowboy/hemingway.git

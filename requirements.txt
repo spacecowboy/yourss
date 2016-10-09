@@ -1,0 +1,2 @@
+youtube_dl==2016.10.7
+feedparser==5.2.1

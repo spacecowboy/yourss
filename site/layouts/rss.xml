@@ -1,0 +1,46 @@
+<rss version="2.0"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+     xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+     xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+     xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>{{ .Site.Title }}</title>
+    <atom:link href="{{ $.Site.BaseURL }}" rel="self" type="application/rss+xml" />
+    <link>{{ .Permalink }}</link>
+    <lastBuildDate>{{ dateFormat "Mon, 2 Jan 2006 15:04:05 -0700" .Date }}</lastBuildDate>
+    <sy:updatePeriod>hourly</sy:updatePeriod>
+    <sy:updateFrequency>1</sy:updateFrequency>
+    <language>en-us</language>
+    <copyright>{{ with .Site.Copyright }}{{ . | safeHTML }}{{ end }}</copyright>
+    <itunes:author>{{ .Site.Author.name }}</itunes:author>
+    <itunes:summary>Youtube proxy feed</itunes:summary>
+    <description>Youtube proxy feed</description>
+    <itunes:owner>
+      <itunes:name>{{ .Site.Author.name }}</itunes:name>
+      <itunes:email>dummy@dummy.com</itunes:email>
+    </itunes:owner>
+    <itunes:explicit>yes</itunes:explicit>
+    <!--<itunes:image href="" />-->
+    <itunes:category text="Technology">
+      <itunes:category text="Podcasting" />
+    </itunes:category>
+    {{ range first 15 .Site.Pages }}
+    <item>
+      <title>{{ .Title }}</title>
+      <itunes:author>{{ .Params.author }}</itunes:author>
+      <itunes:summary>{{ .Description | html }}</itunes:summary>
+      <description>{{ .Description | html }}</description>
+      <enclosure url="{{ .Params.podcast | absURL }}" length="{{ .Params.podcast_bytes }}" type="audio/mpeg" />
+      <guid>{{ .Permalink }}</guid>
+      <link>{{ .Permalink }}</link>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }} </pubDate>
+      <itunes:duration>{{ .Params.podcast_duration }}</itunes:duration>
+      <itunes:explicit>yes</itunes:explicit>
+    </item>
+    {{ end }}
+  </channel>
+</rss>
