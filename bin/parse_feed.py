@@ -78,13 +78,14 @@ def main(url, episodes_folder, baseurl):
 
         # Duration = size / bitrate (which is kbits per second)
         # this will not be accurate to the second
-        total_secs = CURRENT_BYTES / 1024 / (192 / 8)
+        _total_secs = int(CURRENT_BYTES / 1024 / (192 / 8))
+        _total_mins = int(_total_secs // 60)
 
-        secs = round(total_secs % 60)
-        mins = total_secs // 60
-        hours = mins // 60
+        secs = round(_total_secs % 60)
+        mins = round(_total_mins % 60)
+        hours = round(_total_mins // 60)
 
-        duration = "{:.0f}:{:.0f}:{:.0f}".format(hours, mins, secs)
+        duration = "{:02d}:{:02d}:{:02d}".format(int(hours), int(mins), int(secs))
 
         try:
             thumbnail = e["media_thumbnail"][0]["url"]
