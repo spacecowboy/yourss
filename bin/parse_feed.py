@@ -52,33 +52,34 @@ def main(url, episodes_folder, baseurl):
                                        "{}.mp3".format(e["yt_videoid"]))
         postfile = "site/content/episode/{id}.md".format(id=e["yt_videoid"])
 
-        if os.path.isfile(target_filename): # and os.path.isfile(postfile):
-            print("Already processed, skipping: {}".format(e.get("title", e["yt_videoid"])))
-            continue
+        if os.path.isfile(target_filename):
+            print("Already downloaded: {}".format(e.get("title", e["yt_videoid"])))
+        else:
+            global CURRENT_FILE
+            CURRENT_FILE = None
 
-        global CURRENT_FILE, CURRENT_BYTES
-        CURRENT_FILE = None
-        CURRENT_BYTES = None
+            def hook(d):
+                global CURRENT_FILE
+                if d['status'] == 'finished':
+                    # Called after youtube download, not after re-encode, hence the filename change
+                    CURRENT_FILE = os.path.splitext(d['filename'])[0] + ".mp3"
 
-        def hook(d):
-            global CURRENT_FILE, CURRENT_BYTES
-            if d['status'] == 'finished':
-                # Called after youtube download, not after re-encode, hence the filename change
-                CURRENT_BYTES = d['total_bytes']
-                CURRENT_FILE = os.path.splitext(d['filename'])[0] + ".mp3"
+            ydl_opts['progress_hooks'] = [hook]
 
-        ydl_opts['progress_hooks'] = [hook]
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                # List of urls
+                ydl.download([e["link"]])
 
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            # List of urls
-            ydl.download([e["link"]])
+            print("Moving '{}' to '{}'".format(CURRENT_FILE, target_filename))
+            shutil.move(CURRENT_FILE, target_filename)
 
-        print("Moving '{}' to '{}'".format(CURRENT_FILE, target_filename))
-        shutil.move(CURRENT_FILE, target_filename)
+        print("Generating post:", postfile)
+
+        target_size = os.stat(target_filename).st_size
 
         # Duration = size / bitrate (which is kbits per second)
         # this will not be accurate to the second
-        _total_secs = int(CURRENT_BYTES / 1024 / (192 / 8))
+        _total_secs = int(target_size / 1024 / (192 / 8))
         _total_mins = int(_total_secs // 60)
 
         secs = round(_total_secs % 60)
@@ -101,7 +102,7 @@ def main(url, episodes_folder, baseurl):
                                title=e.get("title", ""),
                                author=e.get("author", ""),
                                summary=e.get("summary", ""),
-                               total_bytes=int(CURRENT_BYTES),
+                               total_bytes=int(target_size),
                                duration=duration,
                                podcast="episode/" + os.path.split(target_filename)[1]),
                   file=EPISODE)
