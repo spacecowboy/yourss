@@ -14,7 +14,7 @@ help: ## Print this help text
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 debian: ## Build the debian package
-	#dpkg-buildpackage --build=all -rfakeroot -us -uc
+	# Sign it: debuild -b --lintian-opts --profile debian
 	debuild -b -uc -us --lintian-opts --profile debian
 
 $(DESTDIR)/usr/share/yourss/scripts/%: bin/%
