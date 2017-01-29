@@ -1,23 +1,14 @@
-FROM python:3.6
+FROM debian:stretch-slim
 
 RUN apt-get update -qq && \
-    apt-get install -qy libav-tools make && \
+    apt-get install -qy curl bash libav-tools youtube-dl python3-feedparser && \
     rm -rf /var/lib/apt/lists/*
 
-COPY hugo_0.17-64bit.deb /tmp/hugo_0.17-64bit.deb
+RUN curl --location --output /tmp/hugo.deb https://github.com/spf13/hugo/releases/download/v0.18.1/hugo_0.18.1-64bit.deb && \
+    dpkg -i /tmp/hugo.deb
+RUN curl --location --output /tmp/yourss.deb https://github.com/spacecowboy/yourss/releases/download/1.0.0/yourss_1.0.0_all.deb && \
+    dpkg -i /tmp/yourss.deb
 
-RUN dpkg -i /tmp/hugo_0.17-64bit.deb
+ENV SCRIPTDIR=/usr/share/yourss/scripts SITEDIR=/usr/share/yourss/site
 
-COPY requirements.txt /tmp/requirements.txt
-
-RUN pip3 install -r /tmp/requirements.txt
-
-RUN mkdir /work
-
-COPY site /work/site
-
-COPY bin /work/bin
-
-WORKDIR /work
-
-ENTRYPOINT ["bin/run.sh"]
+ENTRYPOINT ["/usr/bin/yourss"]
