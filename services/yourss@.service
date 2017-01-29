@@ -2,6 +2,7 @@
 Description=Convert youtube RSS feed into mp3 podcast site: %i
 
 [Service]
+Type=oneshot
 ExecStart=/usr/bin/yourss
 Environment=SITEDIR=/usr/share/yourss/site
 Environment=SCRIPTDIR=/usr/share/yourss/scripts

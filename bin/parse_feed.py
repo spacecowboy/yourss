@@ -24,13 +24,13 @@ def main(url, episodes_folder, baseurl, work_folder):
     f = feed["feed"]
 
     # Write main config
-    with open(os.path.join(work_folder, "site/config.toml"),
-              "w") as CONFIG:
-        print(HUGO_CONFIG.format(baseurl=baseurl,
-                                 title=f.get("title", ""),
-                                 author=f.get("author", ""),
-                                 yturl=f.get("link", "")),
-              file=CONFIG)
+    actual_config = HUGO_CONFIG.format(baseurl=baseurl,
+                                       title=f.get("title", ""),
+                                       author=f.get("author", ""),
+                                       yturl=f.get("link", ""))
+
+    with open(os.path.join(work_folder, "site/config.toml"), "wb") as CONFIG:
+        CONFIG.write(actual_config.encode('utf-8'))
 
     # shared options for youtube-dl
     #--extract-audio --audio-format mp3 --audio-quality 192k
@@ -114,4 +114,5 @@ def main(url, episodes_folder, baseurl, work_folder):
 if __name__ == "__main__":
     if len(sys.argv) != 5:
         exit("Incorrect number of arguments" + __doc__)
+    print(sys.argv[1:])
     main(sys.argv[4], episodes_folder=sys.argv[2], baseurl=sys.argv[3], work_folder=sys.argv[1])

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 HUGO_CONFIG = \
-'''
+u'''
 baseurl = "{baseurl}"
 languageCode = "en-us"
 title = """{title}"""
@@ -44,7 +44,7 @@ copyright = """All content original copyright of {author}"""
 '''
 
 ENTRY = \
-'''
+u'''
 +++
 banner = "{thumbnail}"
 categories = []

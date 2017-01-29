@@ -128,12 +128,15 @@ echo "temp: ${tempdir}"
 echo "tempsite: ${tempsite}"
 echo "scriptdir: ${scriptdir}"
 echo "sitedir: ${sitedir}"
+echo "out: ${out}"
+echo "rss: ${rss}"
+echo "baseurl: ${baseurl}"
 
 mkdir ${tempsite}
 
 cp -r ${sitedir}/* ${tempsite}/
 
-python3 "${scriptdir}"/parse_feed.py "${tempdir}" "${out}/episode" "${baseurl}" "${rss}"
+/usr/bin/python3 "${scriptdir}"/parse_feed.py "${tempdir}" "${out}/episode" "${baseurl}" "${rss}"
 
 echo "Building site..."
 
