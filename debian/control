@@ -1,0 +1,15 @@
+Source: yourss
+Section: web
+Priority: optional
+Maintainer: Jonas Kalderstam <jonas@cowboyprogrammer.org>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+Homepage: https://github.com/spacecowboy/yourss
+Vcs-Git: https://github.com/spacecowboy/yourss.git
+Vcs-Browser: https://github.com/spacecowboy/yourss
+
+Package: yourss
+Architecture: all
+Depends: bash, libav-tools, hugo (>= 0.17), python3 (>= 3.3), youtube-dl (>= 2016.10.7), python3-feedparser
+Description: Convert any youtube rss feed into a podcast site/feed with mp3 instead of youtube videos
+ Convert any youtube rss feed into a podcast feed with mp3 instead of youtube videos

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 '''
-Usage: parse_feed.py <episodes_folder> <base-url> <youtube-rss-url>
+Usage: parse_feed.py <work-folder> <episodes_folder> <base-url> <youtube-rss-url>
 '''
 import sys
 import shutil
@@ -13,7 +13,7 @@ import youtube_dl
 from templates import HUGO_CONFIG, ENTRY
 
 
-def main(url, episodes_folder, baseurl):
+def main(url, episodes_folder, baseurl, work_folder):
     r = defaultdict(str)
 
     feed = fp.parse(url)
@@ -24,7 +24,8 @@ def main(url, episodes_folder, baseurl):
     f = feed["feed"]
 
     # Write main config
-    with open("site/config.toml", "w") as CONFIG:
+    with open(os.path.join(work_folder, "site/config.toml"),
+              "w") as CONFIG:
         print(HUGO_CONFIG.format(baseurl=baseurl,
                                  title=f.get("title", ""),
                                  author=f.get("author", ""),
@@ -50,7 +51,8 @@ def main(url, episodes_folder, baseurl):
     for e in feed.entries:
         target_filename = os.path.join(episodes_folder,
                                        "{}.mp3".format(e["yt_videoid"]))
-        postfile = "site/content/episode/{id}.md".format(id=e["yt_videoid"])
+        postfile = os.path.join(work_folder,
+                                "site/content/episode/{id}.md".format(id=e["yt_videoid"]))
 
         if os.path.isfile(target_filename):
             print("Already downloaded: {}".format(e.get("title", e["yt_videoid"])))
@@ -93,8 +95,9 @@ def main(url, episodes_folder, baseurl):
         except:
             thumbnail = ""
 
-        if not os.path.isdir("site/content/episode"):
-            os.makedirs("site/content/episode")
+        episode_dir = os.path.join(work_folder, "site/content/episode")
+        if not os.path.isdir(episode_dir):
+            os.makedirs(episode_dir)
 
         with open(postfile, "w") as EPISODE:
             print(ENTRY.format(thumbnail=thumbnail,
@@ -109,6 +112,6 @@ def main(url, episodes_folder, baseurl):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 5:
         exit("Incorrect number of arguments" + __doc__)
-    main(sys.argv[3], episodes_folder=sys.argv[1], baseurl=sys.argv[2])
+    main(sys.argv[4], episodes_folder=sys.argv[2], baseurl=sys.argv[3], work_folder=sys.argv[1])

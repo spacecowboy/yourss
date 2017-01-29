@@ -1,16 +1,131 @@
-#!/bin/bash -eu
+#!/bin/bash -e
 
-echo "Baseurl: $1"
-echo "Processing URL: $2..."
+display_help() {
+  cat >&2 <<EOF
 
-python3 "$(dirname $0)"/parse_feed.py "/result/episode" "$1" "$2"
+usage: yourss [OPTION]...
+
+Convert any youtube rss feed into a podcast feed with mp3 instead of
+youtube videos.
+
+options:
+
+  -h, --help      show this help message and exit
+  -b, --baseurl   url of your podcast site
+  -o, --out       directory to place site in
+  -r, --rss       youtube rss feed url
+
+environment variables:
+  SITEDIR         location of the hugo site
+  SCRIPTDIR       location of the python scripts
+
+As an example, let's say that you want to put a site up at
+http://www.mydomain.com/podcast. You want videos from the XYZ channel
+to be placed in this site. The XYZ channel has a youtube channel id of
+"ABCDEF123". And you host your site at
+/var/www/mydomain/public_html. Then a suitable invocation of yourss
+would be:
+
+  yourss --baseurl="http://www.mydomain.com/podcast" \\
+         --rss="https://www.youtube.com/feeds/videos.xml?channel_id=ABCDEF123" \\
+         --out="/var/www/mydomain/public_html"
+EOF
+}
+
+print_missing_arg() {
+  # $1 should be argument name
+  echo "Error: missing mandatory argument --$1" >&2
+}
+
+SCRIPT="$0"
+
+while :
+do
+  case "$1" in
+    -b | --baseurl)
+	  baseurl="$2"
+	  shift 2
+	  ;;
+    -b=* | --baseurl=*)
+      baseurl="${1#*=}"
+      shift 1
+      ;;
+    -h | --help)
+	  display_help
+	  exit 0
+	  ;;
+    -o | --out)
+      out="$2"
+      shift 2
+      ;;
+    -o=* | --out=*)
+      out="${1#*=}"
+      shift 1
+      ;;
+    -r | --rss)
+      rss="$2"
+      shift 2
+      ;;
+    -r=* | --rss=*)
+      rss="${1#*=}"
+      shift 1
+      ;;
+    --) # End of all options
+	  shift
+	  break;
+      ;;
+    -*)
+	  echo "Error: unknown option: $1" >&2
+      display_help
+	  exit 1
+	  ;;
+    *)  # No more options
+	  break
+	  ;;
+  esac
+done
+
+if [ -z "${baseurl}" ]; then
+  print_missing_arg "baseurl"
+  display_help
+  exit 1
+fi
+
+if [ -z "${rss}" ]; then
+  print_missing_arg "rss"
+  display_help
+  exit 1
+fi
+
+if [ -z "${out}" ]; then
+  print_missing_arg "out"
+  display_help
+  exit 1
+fi
+
+# Make a temporary directory
+tempdir=$(mktemp -d)
+tempsite=${tempdir}/site
+sitedir="${SITEDIR:-./site}"
+scriptdir="${SCRIPTDIR:-./bin}"
+
+echo "temp: ${tempdir}"
+echo "tempsite: ${tempsite}"
+echo "scriptdir: ${scriptdir}"
+echo "sitedir: ${sitedir}"
+
+mkdir ${tempsite}
+
+cp -r ${sitedir}/* ${tempsite}/
+
+python3 "${scriptdir}"/parse_feed.py "${tempdir}" "${out}/episode" "${baseurl}" "${rss}"
 
 echo "Building site..."
 
-(cd site && hugo)
+(cd ${tempsite} && hugo)
 
 echo "Moving site..."
 
-cp -r site/public/* /result/
+cp -r ${tempsite}/public/* ${out}/
 
 echo "Done"
