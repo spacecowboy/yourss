@@ -18,6 +18,9 @@ options:
 environment variables:
   SITEDIR         location of the hugo site
   SCRIPTDIR       location of the python scripts
+  BASEURL         url of your podcast site
+  OUT             directory to place site in
+  RSS             youtube rss feed url
 
 As an example, let's say that you want to put a site up at
 http://www.mydomain.com/podcast. You want videos from the XYZ channel
@@ -86,15 +89,27 @@ do
 done
 
 if [ -z "${baseurl}" ]; then
+  baseurl="${BASEURL}"
+fi
+
+if [ -z "${baseurl}" ]; then
   print_missing_arg "baseurl"
   display_help
   exit 1
 fi
 
 if [ -z "${rss}" ]; then
+  rss="${RSS}"
+fi
+
+if [ -z "${rss}" ]; then
   print_missing_arg "rss"
   display_help
   exit 1
+fi
+
+if [ -z "${out}" ]; then
+  out="${OUT}"
 fi
 
 if [ -z "${out}" ]; then
@@ -127,5 +142,7 @@ echo "Building site..."
 echo "Moving site..."
 
 cp -r ${tempsite}/public/* ${out}/
+
+rm -rf ${tempdir}
 
 echo "Done"
