@@ -1,3 +1,10 @@
+yourss (1.0.2) stable; urgency=medium
+
+  * updated copyright text formatting
+  * added dependency to fix lintian warning
+
+ -- Jonas Kalderstam <jonas@cowboyprogrammer.org>  Thu, 16 Feb 2017 22:53:14 +0100
+
 yourss (1.0.1) stable; urgency=low
 
   * Initial Release.
