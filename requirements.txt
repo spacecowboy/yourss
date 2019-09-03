@@ -1,2 +1,2 @@
-youtube_dl==2016.10.7
+youtube_dl==2019.09.1
 feedparser==5.2.1
