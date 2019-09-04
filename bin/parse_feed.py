@@ -19,6 +19,7 @@ def main(url, episodes_folder, baseurl, work_folder):
     feed = fp.parse(url)
 
     if feed.bozo:
+        print(f"RSS feed URL {url} returns invalid XML")
         raise ValueError(feed.bozo_exception)
 
     f = feed["feed"]

@@ -1,3 +1,4 @@
 debian/yourss
 debian/files
 out
+__pycache__
