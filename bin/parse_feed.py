@@ -13,7 +13,7 @@ import youtube_dl
 from templates import HUGO_CONFIG, ENTRY
 
 
-def main(url, episodes_folder, baseurl, work_folder):
+def main(url, episodes_folder, baseurl, work_folder, skip_download=False):
     r = defaultdict(str)
 
     feed = fp.parse(url)
@@ -42,7 +42,9 @@ def main(url, episodes_folder, baseurl, work_folder):
             'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
-        'progress_hooks': []
+        'progress_hooks': [],
+        'skip_download': skip_download,
+        'forcejson': skip_download,
     }
 
     if not os.path.isdir(episodes_folder):
@@ -50,46 +52,59 @@ def main(url, episodes_folder, baseurl, work_folder):
 
     # Write individual entries
     for e in feed.entries:
-        target_filename = os.path.join(episodes_folder,
-                                       "{}.mp3".format(e["yt_videoid"]))
         postfile = os.path.join(work_folder,
-                                "site/content/episode/{id}.md".format(id=e["yt_videoid"]))
-
-        if os.path.isfile(target_filename):
-            print("Already downloaded: {}".format(e.get("title", e["yt_videoid"])))
-        else:
-            global CURRENT_FILE
-            CURRENT_FILE = None
-
-            def hook(d):
+                                    "site/content/episode/{id}.md".format(id=e["yt_videoid"]))
+        if not skip_download:
+            target_filename = os.path.join(episodes_folder,
+                                        "{}.mp3".format(e["yt_videoid"]))
+           
+            if os.path.isfile(target_filename):
+                print("Already downloaded: {}".format(e.get("title", e["yt_videoid"])))
+                
+            else:
                 global CURRENT_FILE
-                if d['status'] == 'finished':
-                    # Called after youtube download, not after re-encode, hence the filename change
-                    CURRENT_FILE = os.path.splitext(d['filename'])[0] + ".mp3"
+                CURRENT_FILE = None
 
-            ydl_opts['progress_hooks'] = [hook]
+                def hook(d):
+                    global CURRENT_FILE
+                    if d['status'] == 'finished':
+                        # Called after youtube download, not after re-encode, hence the filename change
+                        CURRENT_FILE = os.path.splitext(d['filename'])[0] + ".mp3"
 
+                ydl_opts['progress_hooks'] = [hook]
+
+                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                    # List of urls
+                    ydl.download([e["link"]])
+
+                print("Moving '{}' to '{}'".format(CURRENT_FILE, target_filename))
+                shutil.move(CURRENT_FILE, target_filename)
+
+            target_size = os.stat(target_filename).st_size
+            # Duration = size / bitrate (which is kbits per second)
+            # this will not be accurate to the second
+            _total_secs = int(target_size / 1024 / (192 / 8))
+            _total_mins = int(_total_secs // 60)
+
+            secs = round(_total_secs % 60)
+            mins = round(_total_mins % 60)
+            hours = round(_total_mins // 60)
+
+            duration = "{:02d}:{:02d}:{:02d}".format(int(hours), int(mins), int(secs))
+
+            file_link = f"episode/{os.path.split(target_filename)[1]}"    
+        else:
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                # List of urls
-                ydl.download([e["link"]])
-
-            print("Moving '{}' to '{}'".format(CURRENT_FILE, target_filename))
-            shutil.move(CURRENT_FILE, target_filename)
+                json = ydl.extract_info(e["link"])
+                for forma in json.get("formats"):
+                    if forma.get("ext") == "m4a":
+                        duration = json.get("duration") / 60
+                        target_size = forma.get("filesize")
+                        file_link = forma.get("url")
+                        break
 
         print("Generating post:", postfile)
-
-        target_size = os.stat(target_filename).st_size
-
-        # Duration = size / bitrate (which is kbits per second)
-        # this will not be accurate to the second
-        _total_secs = int(target_size / 1024 / (192 / 8))
-        _total_mins = int(_total_secs // 60)
-
-        secs = round(_total_secs % 60)
-        mins = round(_total_mins % 60)
-        hours = round(_total_mins // 60)
-
-        duration = "{:02d}:{:02d}:{:02d}".format(int(hours), int(mins), int(secs))
+        print("RSS URL for post: ", file_link)
 
         try:
             thumbnail = e["media_thumbnail"][0]["url"]
@@ -108,12 +123,11 @@ def main(url, episodes_folder, baseurl, work_folder):
                                summary=e.get("summary", ""),
                                total_bytes=int(target_size),
                                duration=duration,
-                               podcast="episode/" + os.path.split(target_filename)[1]),
-                  file=EPISODE)
-
+                               podcast=file_link),
+                               file=EPISODE)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
+    if len(sys.argv) < 5 or len(sys.argv) > 6:
         exit("Incorrect number of arguments" + __doc__)
     print(sys.argv[1:])
-    main(sys.argv[4], episodes_folder=sys.argv[2], baseurl=sys.argv[3], work_folder=sys.argv[1])
+    main(sys.argv[4], episodes_folder=sys.argv[2], baseurl=sys.argv[3], work_folder=sys.argv[1], skip_download=bool(sys.argv[5]))

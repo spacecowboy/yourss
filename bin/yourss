@@ -14,6 +14,7 @@ options:
   -b, --baseurl   url of your podcast site
   -o, --out       directory to place site in
   -r, --rss       youtube rss feed url
+  -s              skip downloading mp3 files
 
 environment variables:
   SITEDIR         location of the hugo site
@@ -73,6 +74,10 @@ do
       rss="${1#*=}"
       shift 1
       ;;
+    -s)
+      skipdownload=true
+      shift 1
+      ;;
     --) # End of all options
 	  shift
 	  break;
@@ -118,6 +123,7 @@ if [ -z "${out}" ]; then
   exit 1
 fi
 
+
 # Make a temporary directory
 tempdir=$(mktemp -d)
 tempsite=${tempdir}/site
@@ -131,12 +137,13 @@ echo "sitedir: ${sitedir}"
 echo "out: ${out}"
 echo "rss: ${rss}"
 echo "baseurl: ${baseurl}"
+echo "download: ${skipdownload}"
 
 mkdir ${tempsite}
 
 cp -r ${sitedir}/* ${tempsite}/
 
-/usr/bin/python3 "${scriptdir}"/parse_feed.py "${tempdir}" "${out}/episode" "${baseurl}" "${rss}"
+/usr/bin/python3 "${scriptdir}"/parse_feed.py "${tempdir}" "${out}/episode" "${baseurl}" "${rss}" "${skipdownload}"
 
 echo "Building site..."
 
