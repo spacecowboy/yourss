@@ -1,8 +1,0 @@
-[Unit]
-Description=Timer for running yourss@%i.service
-
-[Timer]
-OnCalendar=daily
-
-[Install]
-WantedBy=timers.target
