@@ -12,9 +12,22 @@ import feedparser as fp
 import youtube_dl
 from templates import HUGO_CONFIG, ENTRY
 
+
 class YouTubeParser:
     def __init__(self):
         self.skip_download = True
+
+    # TODO: parse for channel_id then parse feed
+    # TODO: multiple search results?
+    def search_for_feed(search_term):
+        ydl_opts = {
+            'default_search': f'ytsearch:{search_term}',
+            'skip_download': True
+        }
+        mp3_entries = []
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            json = ydl.extract_info("")
+            return json
 
     def parse_feed_mp3s_list(url, skip_download):
         r = defaultdict(str)
@@ -41,7 +54,7 @@ class YouTubeParser:
             'skip_download': skip_download,
             'forcejson': skip_download,
         }
-
+        mp3_entries = []
         # Write individual entries
         for e in feed.entries:
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -51,19 +64,19 @@ class YouTubeParser:
                         duration = json.get("duration") / 60
                         target_size = forma.get("filesize")
                         file_link = forma.get("url")
+                        mp3_entries.append({
+                            "file_link": file_link,
+                            "target_size": target_size,
+                            "duration": duration
+                        })
                         break
 
-        try:
-            thumbnail = e["media_thumbnail"][0]["url"]
-        except:
-            thumbnail = ""
+        # try:
+        #     thumbnail = e["media_thumbnail"][0]["url"]
+        # except:
+        #     thumbnail = ""
 
-        return {
-            "file_link": file_link,
-            "target_size": target_size,
-            "duration": duration,
-            "thumbnail": thumbnail
-        }
+        return mp3_entries
         
 
     def parse_feed(url, episodes_folder, baseurl, work_folder, skip_download=False):

@@ -2,3 +2,5 @@ debian/yourss
 debian/files
 out
 __pycache__
+*.mp4
+*.mp3
