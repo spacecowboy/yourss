@@ -1,5 +1,5 @@
 """
-This file is run using `pip3 install -e` to egnerate yt_api.egg-info folder
+This file is run using `pip3 install -e` to generate yt_api.egg-info folder
 so that we can start the applicaton with the .ini file
 """
 from setuptools import setup
