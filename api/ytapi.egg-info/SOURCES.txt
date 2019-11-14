@@ -1,0 +1,7 @@
+setup.py
+ytapi.egg-info/PKG-INFO
+ytapi.egg-info/SOURCES.txt
+ytapi.egg-info/dependency_links.txt
+ytapi.egg-info/entry_points.txt
+ytapi.egg-info/requires.txt
+ytapi.egg-info/top_level.txt
