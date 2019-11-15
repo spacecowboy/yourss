@@ -1,0 +1,10 @@
+version: '3'
+services:
+  web:
+    build:
+      context: api/.
+    ports:
+      - "6543:6543"
+    command: pserve development.ini --reload
+    volumes:
+      - ./api:/code
