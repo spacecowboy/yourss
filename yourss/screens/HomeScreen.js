@@ -6,7 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
+  Button,
   View,
 } from 'react-native';
 
@@ -19,7 +19,7 @@ export default function HomeScreen() {
         style={styles.container}
         contentContainerStyle={styles.contentContainer}>
         <View style={styles.welcomeContainer}>
-          <Image
+          <Image 
             source={
               __DEV__
                 ? require('../assets/images/robot-dev.png')
@@ -45,11 +45,10 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.helpContainer}>
-          <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
-            <Text style={styles.helpLinkText}>
-              Help, it didn’t automatically reload!
-            </Text>
-          </TouchableOpacity>
+          <Button
+            title="Press me"
+            color="#f194ff"
+            onPress={handleRequest} />
         </View>
       </ScrollView>
 
@@ -102,10 +101,20 @@ function handleLearnMorePress() {
   );
 }
 
-function handleHelpPress() {
-  WebBrowser.openBrowserAsync(
-    'https://docs.expo.io/versions/latest/workflow/up-and-running/#cant-see-your-changes'
-  );
+function handleRequest() {
+  const url = 'localhost:6543/search'
+  const data = {}
+  
+  return fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
+        hello: 'world'
+      }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }).then(response => console.log(response.json()))
 }
 
 const styles = StyleSheet.create({
