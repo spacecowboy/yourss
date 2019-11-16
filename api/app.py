@@ -16,7 +16,7 @@ class SearchParserView(object):
         self.request = request
 
     @view_config(renderer='json')
-    def post(self):
+    def get(self):
         s = loads(self.request.body, encoding=self.request.charset)
         return YouTubeParser.search_for_feed(s.get('search_term'))
         

@@ -102,18 +102,11 @@ function handleLearnMorePress() {
 }
 
 function handleRequest() {
-  const url = 'localhost:6543/search'
+  const url = 'http://192.168.1.7:6543/search'
   const data = {}
   
   return fetch(url, {
-      method: 'POST',
-      body: JSON.stringify({
-        hello: 'world'
-      }),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      }
+      method: 'GET'
     }).then(response => console.log(response.json()))
 }
 

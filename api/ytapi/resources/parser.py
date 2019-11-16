@@ -14,9 +14,9 @@ class SearchParserView(object):
     def __init__(self, request, context=None): # Context parameter required by cornice
         self.request = request
 
-    def post(self):
-        s = loads(self.request.body, encoding=self.request.charset)
-        return YouTubeParser.search_for_feed(s.get('search_term'))
+    def get(self):
+        search_term = "Majority Report"
+        return YouTubeParser.search_for_feed(search_term)
         
 
 @resource(name='feed', path='/feed')
